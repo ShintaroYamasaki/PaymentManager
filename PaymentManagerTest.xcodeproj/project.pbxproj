@@ -17,6 +17,7 @@
 		CE8693671A00D74100338E33 /* MainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CE8693661A00D74100338E33 /* MainViewController.m */; };
 		CE86936E1A00D83400338E33 /* PaymentManager.m in Sources */ = {isa = PBXBuildFile; fileRef = CE86936D1A00D83400338E33 /* PaymentManager.m */; };
 		CE8693701A00DE8000338E33 /* iAd.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CE86936F1A00DE8000338E33 /* iAd.framework */; };
+		CEB8189D1BDA05CB00B38792 /* NSData+Base64.m in Sources */ = {isa = PBXBuildFile; fileRef = CEB8189C1BDA05CB00B38792 /* NSData+Base64.m */; settings = {ASSET_TAGS = (); }; };
 		CECD76781A08A07100B74459 /* App内課金実装の流れ.txt in Resources */ = {isa = PBXBuildFile; fileRef = CECD76771A08A07100B74459 /* App内課金実装の流れ.txt */; };
 		CECD767A1A08B6BA00B74459 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CECD76791A08B6BA00B74459 /* StoreKit.framework */; };
 /* End PBXBuildFile section */
@@ -50,6 +51,8 @@
 		CE86936C1A00D83400338E33 /* PaymentManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaymentManager.h; sourceTree = "<group>"; };
 		CE86936D1A00D83400338E33 /* PaymentManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PaymentManager.m; sourceTree = "<group>"; };
 		CE86936F1A00DE8000338E33 /* iAd.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = iAd.framework; path = System/Library/Frameworks/iAd.framework; sourceTree = SDKROOT; };
+		CEB8189B1BDA05CB00B38792 /* NSData+Base64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSData+Base64.h"; sourceTree = "<group>"; };
+		CEB8189C1BDA05CB00B38792 /* NSData+Base64.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSData+Base64.m"; sourceTree = "<group>"; };
 		CECD76771A08A07100B74459 /* App内課金実装の流れ.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "App内課金実装の流れ.txt"; sourceTree = "<group>"; };
 		CECD76791A08B6BA00B74459 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
@@ -142,6 +145,8 @@
 		CE86936B1A00D7CC00338E33 /* lib */ = {
 			isa = PBXGroup;
 			children = (
+				CEB8189B1BDA05CB00B38792 /* NSData+Base64.h */,
+				CEB8189C1BDA05CB00B38792 /* NSData+Base64.m */,
 				CE86936C1A00D83400338E33 /* PaymentManager.h */,
 				CE86936D1A00D83400338E33 /* PaymentManager.m */,
 			);
@@ -254,6 +259,7 @@
 				CE86936E1A00D83400338E33 /* PaymentManager.m in Sources */,
 				CE60F4DC1A0212B60054EABD /* ProductManager.m in Sources */,
 				CE8693421A00D45C00338E33 /* main.m in Sources */,
+				CEB8189D1BDA05CB00B38792 /* NSData+Base64.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

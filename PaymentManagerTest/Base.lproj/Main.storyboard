@@ -19,9 +19,6 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
-                            <adBannerView opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" translatesAutoresizingMaskIntoConstraints="NO" id="YVK-D8-P4S">
-                                <rect key="frame" x="0.0" y="-50" width="320" height="50"/>
-                            </adBannerView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cSU-vv-OgP">
                                 <rect key="frame" x="-23" y="-15" width="46" height="30"/>
                                 <state key="normal" title="リストア"/>
@@ -86,6 +83,9 @@
                                     </mask>
                                 </variation>
                             </label>
+                            <adBannerView opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" translatesAutoresizingMaskIntoConstraints="NO" id="YVK-D8-P4S">
+                                <rect key="frame" x="0.0" y="-50" width="320" height="50"/>
+                            </adBannerView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
@@ -105,14 +105,15 @@
                             <constraint firstItem="9RW-Bv-7HR" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leadingMargin" id="kB7-hF-UBj"/>
                             <constraint firstItem="WAc-Cc-y3P" firstAttribute="leading" secondItem="cSU-vv-OgP" secondAttribute="trailing" constant="8" id="mJf-QT-VOY"/>
                             <constraint firstItem="BUd-81-PXl" firstAttribute="top" secondItem="9RW-Bv-7HR" secondAttribute="bottom" constant="8" id="mcc-m2-igf"/>
-                            <constraint firstItem="2fi-mo-0CV" firstAttribute="top" secondItem="YVK-D8-P4S" secondAttribute="bottom" constant="20" id="ny4-ah-dHB"/>
+                            <constraint firstItem="2fi-mo-0CV" firstAttribute="top" secondItem="YVK-D8-P4S" secondAttribute="bottom" constant="20" id="ny4-ah-dHB">
+                                <variation key="heightClass=regular-widthClass=compact" constant="0.0"/>
+                            </constraint>
                             <constraint firstItem="xov-m8-DDo" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leadingMargin" id="pHW-nb-DEH"/>
                             <constraint firstItem="BUd-81-PXl" firstAttribute="trailing" secondItem="kh9-bI-dsS" secondAttribute="trailingMargin" id="tXr-UI-1f5"/>
                             <constraint firstAttribute="trailingMargin" secondItem="SJA-na-GO5" secondAttribute="trailing" constant="-1" id="uXu-aU-KQU"/>
                         </constraints>
                         <variation key="default">
                             <mask key="subviews">
-                                <exclude reference="YVK-D8-P4S"/>
                                 <exclude reference="cSU-vv-OgP"/>
                                 <exclude reference="xov-m8-DDo"/>
                                 <exclude reference="cuR-r2-iC5"/>
@@ -120,6 +121,7 @@
                                 <exclude reference="9RW-Bv-7HR"/>
                                 <exclude reference="SJA-na-GO5"/>
                                 <exclude reference="BUd-81-PXl"/>
+                                <exclude reference="YVK-D8-P4S"/>
                             </mask>
                             <mask key="constraints">
                                 <exclude reference="5zh-Bd-YZd"/>
@@ -146,7 +148,6 @@
                         </variation>
                         <variation key="heightClass=regular-widthClass=compact">
                             <mask key="subviews">
-                                <include reference="YVK-D8-P4S"/>
                                 <include reference="cSU-vv-OgP"/>
                                 <include reference="xov-m8-DDo"/>
                                 <include reference="cuR-r2-iC5"/>
@@ -154,6 +155,7 @@
                                 <include reference="9RW-Bv-7HR"/>
                                 <include reference="SJA-na-GO5"/>
                                 <include reference="BUd-81-PXl"/>
+                                <include reference="YVK-D8-P4S"/>
                             </mask>
                             <mask key="constraints">
                                 <include reference="5zh-Bd-YZd"/>

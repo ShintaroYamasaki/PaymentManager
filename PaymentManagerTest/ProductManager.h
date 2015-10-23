@@ -11,6 +11,7 @@
 // プロダクトID
 #define kProductRemoveAd @"jp.cubic.PaymentManagerTest.removeAd"
 #define kProductIncreasePoints @"jp.cubic.PaymentManagerTest.addPoints"
+#define kProductShowTest7days @"jp.cubic.PaymentManagerTest.ShowText7days"
 
 /** プロダクト管理クラス */
 @interface ProductManager : NSObject {

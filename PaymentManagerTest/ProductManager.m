@@ -27,11 +27,13 @@
         _productIds = [[NSMutableSet alloc] init];
         [_productIds addObject:kProductRemoveAd];
         [_productIds addObject:kProductIncreasePoints];
+        [_productIds addObject:kProductShowTest7days];
         
         // 購入状況をNSUserDefaultsから読み込む
         _userDefaults = [NSUserDefaults standardUserDefaults];
         _isRemoveAd = [_userDefaults boolForKey:kProductRemoveAd];
         _points = [_userDefaults integerForKey:kProductIncreasePoints];
+        _isRemoveAd = [_userDefaults boolForKey:kProductShowTest7days];
     }
     
     return self;

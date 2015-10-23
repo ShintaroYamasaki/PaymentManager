@@ -10,6 +10,10 @@
 
 #define kIsRemainTransaction  @"IsRemainTransaction"
 
+// 自動更新（Auto-Renewable）プロダクト用の共有シークレット
+// 本来はこのようにソースコードに直接、値を書くべきではない
+#define kSharedSecret @"2444cdeeb8f641b6a14b262f83384513"
+
 @implementation PaymentManager
 
 + (PaymentManager *)sharedInstance {
@@ -90,6 +94,67 @@
 }
 
 /**
+ 購入完了した際の処理
+ */
+- (void)completedTransaction:(SKPaymentTransaction *)transaction {
+    
+    // レシートデータ取得
+    NSURL *receiptURL = [[NSBundle mainBundle] appStoreReceiptURL];
+    NSData *receiptData = [NSData dataWithContentsOfURL:receiptURL];
+    
+    // Base64エンコードしたレシートデータの有効性を確認する
+    NSDictionary *dictionary = [[PaymentManager sharedInstance] verifyReceipt:[receiptData base64EncodedString]];
+    
+    // ステータスコードの確認
+    NSNumber *status = [dictionary objectForKey:@"status"];
+    // TODO: エラー吐き出し
+    switch (status.intValue) {
+        // 送信したJSONオブジェクトが不正
+        case 21000:
+            
+            break;
+        // receipt-dataプロパティのデータが不正な形式
+        case 21002:
+            
+            break;
+        // レシートを認証できない
+        case 21003:
+            
+            break;
+        // 共有シークレットが一致しない
+        case 21004:
+            
+            break;
+        // Appleのレシートサーバが利用できない
+        case 21005:
+            
+            break;
+        // レシートの期限切れ
+        case 21006:
+            
+            break;
+        // サンドボックス用レシートを本番用URLに送付した
+        case 21007:
+            
+            break;
+        // 本番用レシートをサンドボックス用URLに送付した
+        case 21008:
+            
+            break;
+        default:
+            break;
+    }
+    
+    // 完了の旨を通知
+    // TODO: デリゲートの完了通知メソッドの引数にレシート情報を追加する
+    
+    [_delegate completePayment:transaction];
+    // トランザクションを終了する
+    [[SKPaymentQueue defaultQueue] finishTransaction:transaction];
+
+    
+}
+/**
  購入処理中にエラーが発生したとき、エラーを通知する
  */
 - (void)failedTransaction:(SKPaymentTransaction *)transaction {
@@ -123,6 +188,39 @@
     [[SKPaymentQueue defaultQueue] finishTransaction:transaction];
 }
 
+- (NSDictionary *)verifyReceipt:(NSString *)receipt {
+    
+    //  NSURL *url = [NSURL URLWithString:@"https://buy.itunes.apple.com/verifyReceipt"];
+    NSURL *url = [NSURL URLWithString:@"https://sandbox.itunes.apple.com/verifyReceipt"];
+    
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+    
+    // 自動更新ではない場合はpasswordは不要
+    NSString *jsonForTransmission = [NSString stringWithFormat:@"{\"receipt-data\":\"%@\", \"password\":\"%@\"}",
+                                     receipt,
+                                     kSharedSecret];
+    [request setHTTPBody:[jsonForTransmission dataUsingEncoding:NSUTF8StringEncoding]];
+    [request setHTTPMethod:@"POST"];
+    
+    NSURLResponse *response;
+    NSError *error;
+    NSData *decodeData = [NSURLConnection sendSynchronousRequest:request
+                                               returningResponse:&response
+                                                           error:&error];
+    
+    // Appleのサーバから受け取ったJSONデータをNSDictionaryに変換して返す
+    NSDictionary *dictionary = [NSJSONSerialization
+                                JSONObjectWithData:
+                                decodeData
+                                options:kNilOptions
+                                error:&error];
+    
+    NSLog(@"%@", dictionary);
+    
+    return dictionary;
+}
+
+
 #pragma mark - SKProductsRequestDelegate
 - (void)productsRequest:(SKProductsRequest *)request didReceiveResponse:(SKProductsResponse *)response {
     [_delegate responseProductInfo:response.products InvalidProducts:response.invalidProductIdentifiers];
@@ -154,9 +252,7 @@
                 
             case SKPaymentTransactionStatePurchased:
                 [_delegate onPaymentStatus:PaymentStatusPurchased];
-                [_delegate completePayment:transaction];
-                // トランザクションを終了する
-                [[SKPaymentQueue defaultQueue] finishTransaction:transaction];
+                [self completedTransaction:transaction];
                 break;
                 
             case SKPaymentTransactionStateFailed:
@@ -166,9 +262,7 @@
                 
             case SKPaymentTransactionStateRestored:
                 [_delegate onPaymentStatus:PaymentStatusPurchased];
-                [_delegate completePayment:transaction];
-                // トランザクションを終了する
-                [[SKPaymentQueue defaultQueue] finishTransaction:transaction];
+                [self completedTransaction:transaction];
                 break;
                 
             default:

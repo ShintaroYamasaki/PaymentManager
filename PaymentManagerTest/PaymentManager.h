@@ -9,6 +9,8 @@
 #import <Foundation/Foundation.h>
 #import <StoreKit/StoreKit.h>
 
+#import "NSData+Base64.h"
+
 /** 購入処理状況 */
 typedef enum {
     /** 購入処理状況 プロダクト情報の取得完了 */
@@ -125,4 +127,10 @@ typedef enum {
  */
 - (BOOL) startRestore;
 
+/**
+ Appleのサーバにレシートを送信して確認する
+ 
+ @param receipt 
+ */
+- (NSDictionary *)verifyReceipt:(NSString *)receipt;
 @end
