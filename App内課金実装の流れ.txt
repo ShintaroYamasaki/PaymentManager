@@ -1,0 +1,277 @@
+■ iTunes ConnectからApp内課金製品を追加
+1. iTunes Connectの「マイ App」から、App内課金を実装したいアプリを開く
+
+2. 「App内課金」をクリック。App内課金画面が表示されます。
+
+3. 左上にある「Create New」をクリック。App内課金タイプの選択画面が表示されます。
+
+4. 「広告削除」や「制限の開放」などといった、一度しか購入する必要のないものは「非消耗型」なので、「非消耗型」を選択します。
+※注意 今回作成した「PaymentManagerクラス」では「消耗型」と「非消耗型」のみに対応しています。
+
+5. App内課金のタイプを選択すると、このApp内課金についての情報を設定する画面が表示されます。
+
+　それぞれの設定項目について
+・参照名 : iTunes Connect内で表示される製品名。AppStoreやアプリ上には表示されません。
+    例 RemoveAd
+
+・製品ID : 製品のID。製品情報の取得や製品の識別などに使われます。「アプリのBundleIdentifier + 参照名」とするのが普通だそうです。
+    例 jp.cubic.PaymentManagerTest.removeAd
+
+・配信可 : 配信するかどうか。テストでも「はい」に選択しなければなりません。
+    例 はい
+
+・価格帯 : 販売価格。価格表に従って販売価格を決定します。「Tier 1」だと日本円で100円となります。
+    例 Tier 1
+
+・Add Language : App内課金の詳細を言語別で登録します。クリックすると言語追加画面が表示されます。
+    言語 : 言語の指定
+        例 Japanese
+    表示名 : AppStore等に表示されるApp内課金製品の名前です
+        例 広告削除
+    説明 : App内課金の説明です。10文字以上で書かなくてはなりません。
+        例 : 表示されている広告を削除します。
+
+・Appleでコンテンツをホスティングする : App内課金によって何かデータをダウンロードさせる際に、そのコンテンツをAppleのサーバーに置くかどうか。
+    例 いいえ
+
+・レビューコメント : レビュー審査時にAppleに伝えたい補足情報。テストの際は必要ありません。
+
+・レビュー審査のためのスクリーンショット : レビュー審査時に提出するスクリーンショット。テストの際は必要ありません。
+
+6. 設定項目を入力し終えたら、「Save」をクリックします。エラーがでなければ、これでApp内課金製品の追加は完了です。App内課金画面に、追加した製品が表示されているはずです。
+
+
+
+■ アプリにApp内課金製品を管理するクラスを実装する
+※ 例にサンプルアプリ「PaymentManagerTest」を使っています
+※ 実装しなければならないということはないのですが、製品を管理するクラスを別で作っておいたほうがApp内課金の処理を管理しやすくなります。
+
+1. App内課金を実装したいアプリのプロジェクトをXcodeで開きます。
+
+2. App内課金の製品を管理するクラスを作成します。
+    サンプルアプリでは「ProductManager.h/m」を作成しています。
+
+3. このApp内課金製品管理クラスで実装するものは以下の通りです。
+
+・製品ID定数 : iTunes Connectで追加したApp内課金製品の製品IDを定数として定義しておく。製品ID定数はApp内課金の製品情報を取得する際や購入完了時の製品の識別に使われます。
+
+・製品ID一覧プロパティ : App内課金の製品情報を取得するために、NSSet型の製品ID一覧を渡してやる必要があるため。
+    例   @property (nonatomic, readonly) NSMutableSet *productIds;
+        サンプルアプリではinitで製品ID一覧を実際に作成しています。
+            _productIds = [[NSMutableSet alloc] init];
+            [_productIds addObject:kProductRemoveAd];
+            [_productIds addObject:kProductIncreasePoints];
+
+・製品ごとのプロパティ : 製品を提供するために、App内課金の購入状況をメンバ変数として保持しておく。
+    例   /** 広告の表示/非表示 */
+        @property (nonatomic) BOOL isRemoveAd;
+        /** ポイント数 */
+        @property (nonatomic) NSInteger points;
+
+・インスタンス共有用メソッド : 複数のクラスで単一のインスタンスを扱うことをできるようにするため
+    例   + (ProductManager *)sharedInstance {
+            static ProductManager *_sharedInstance = nil;
+            static dispatch_once_t onceToken;
+            dispatch_once(&onceToken, ^{
+                _sharedInstance = [[ProductManager alloc] init];
+            });
+            return _sharedInstance;
+        }
+
+・購入の反映メソッド : App内課金が完了した際に呼び出して、購入を変数に反映させます。
+    例   - (void)bought:(NSString *)productIds {
+            // 購入されたものをNSUserDefaultsで管理する
+            // productIdsでプロダクトを識別
+            if ([productIds isEqualToString:kProductRemoveAd]) {
+                [self setIsRemoveiAd:YES];
+            } else if ([productIds isEqualToString:kProductIncreasePoints]) {
+                [self setPoints:_points + 1];
+            }
+        }
+
+また、購入状況については端末自体に保持させなければならないので、NSUserDefaultsを使用して購入状況を管理します。
+・購入状況を取得 : アプリ起動時にApp内課金の適用状況を反映しなければならないため、NSUserDefaultsを使用して購入状況を取得します。
+    例   サンプルアプリではinitに記述してあります。
+            // 購入状況をNSUserDefaultsから読み込む
+            _userDefaults = [NSUserDefaults standardUserDefaults];
+            _isRemoveAd = [_userDefaults boolForKey:kProductRemoveAd];
+            _points = [_userDefaults integerForKey:kProductIncreasePoints];
+
+・購入状況を保存 : App内課金製品を購入完了した際に、メンバ変数に適用すると同時に端末にもNSUserDefaultsを使用して購入状況を保存します。
+    例   サンプルアプリでは製品ごとのプロパティのSetterにオーバーライドしています。
+            - (void) setIsRemoveiAd:(BOOL)isRemoveAd {
+                _isRemoveAd = isRemoveAd;
+                // 購入状況をNSUserDefaultsに保存
+                [_userDefaults setBool:isRemoveAd forKey:kProductRemoveAd];
+                [_userDefaults synchronize];
+            }
+
+
+■ アプリにApp内課金処理を実装する
+※ 例にサンプルアプリ「PaymentManagerTest」を使っています
+
+1. App内課金を実装したいアプリのプロジェクトをXcodeで開きます。
+
+2. 「iAd.framework」と「StoreKit.framework」と「PaymentManager.h/m」をプロジェクトに追加します
+
+3. App内課金処理を行いたいViewControllerに"PaymentManager.h"をimportしてください。
+    例   サンプルアプリでは、MainViewController.hに追加しています。
+
+5. App内課金製品管理クラスを初期化します
+    例   サンプルアプリでは、MainViewController.m内のviewDidLoadで処理しています。
+            _productManager = [ProductManager sharedInstance];  // 複数のクラスで単一のインスタンスを扱うことをできるようにsharedInstanceで初期化
+
+4. PaymentManagerを初期化します。
+    例   サンプルアプリでは、MainViewController.m内のviewDidLoadで処理しています。
+            _paymentManager = [PaymentManager sharedInstance];  // 複数のクラスで単一のインスタンスを扱うことをできるようにsharedInstanceで初期化
+            _paymentManager.delegate = self; // PaymentManagerDelegateを設定
+
+5. App内課金の購入処理の状況を取得できるようにします。購入処理状況はPaymentManagerDelegateのonPaymentStatusに、購入処理中に発生したエラーはPaymentManagerDelegateのonPaymentErrorに通知されますので、この2つを実装します。
+    例   サンプルアプリではPaymentManagerDelegateを自クラスに設定しているので、MainViewController.m内に記述しています。
+
+        /** 購入処理状況 */
+        typedef enum {
+            /** 購入処理状況 プロダクト情報の取得完了 */
+            PaymentStatusResponsedProductInfo,
+            /** 購入処理状況 購入処理開始 */
+            PaymentStatusPurchasing,
+            /** 購入処理状況 購入処理完了 */
+            PaymentStatusPurchased,
+            /** 購入処理状況 失敗 */
+            PaymentStatusFailed,
+            /** 購入処理状況 リストア(復元)の完了 */
+            PaymentStatusRestored
+        } PaymentStatus;
+
+        /** 購入処理エラー */
+        typedef enum {
+            /** 購入処理エラー プロダクト情報の取得エラー */
+            PaymentErrorResponsedProductInfo,
+            /** 購入処理エラー クライアントが許可されていない処理を行おうとした */
+            PaymentErrorClientInvalid,
+            /** 購入処理エラー キャンセルを行った */
+            PaymentErrorCancelled,
+            /** 購入処理エラー リクエストが不正 */
+            PaymentErrorInvalid,
+            /** 購入処理エラー アプリ内課金が制限されている */
+            PaymentErrorNotAllowed,
+            /** 購入処理エラー リストアの失敗 */
+            PaymentErrorFailedRestore,
+            /** 購入処理エラー 不明 */
+            PaymentErrorUnknown
+        } PaymentError;
+
+
+    PaymentManagerDelegate
+        /**
+        購入処理状況通知
+
+        @param status 購入処理状況
+        */
+        - (void) onPaymentStatus:(PaymentStatus) status;
+
+        /**
+        購入処理エラー通知
+
+        @param error 購入処理エラー
+        */
+        - (void) onPaymentError:(PaymentError) error;
+
+
+6. App内課金製品の情報提供を要求します。NSSet型の製品ID一覧を渡します。
+    例   サンプルアプリでは、MainViewController.m内のviewDidLoadで処理しています。
+            // プロダクト情報の取得
+            [_paymentManager requestProductInfo:_productManager.productIds];
+
+    PaymentManager
+        /**
+        プロダクト情報の要求
+
+        @param productIds 要求するプロダクトのID一覧
+        */
+        - (SKProductsRequest *)requestProductInfo: (NSSet *) productIds;
+
+7. App内課金製品の情報の要求結果はPaymentManagerDelegateのresponseProductInfoに返ってきます。そこにApp内課金製品情報を画面上に表示する処理を記述します。また、取得したApp内課金製品情報一覧は後で使うので、メンバ変数に保持しておきます。
+    例   サンプルアプリではPaymentManagerDelegateを自クラスに設定しているので、MainViewController.m内に記述しています。また、取得したApp内課金製品情報はテーブルビューに表示させるようにしています。
+            - (void) responseProductInfo:(NSArray *)products InvalidProducts:(NSArray *)invalidProducts {
+                _products = products;
+                // テーブルビューに表示
+                [_tableView reloadData];
+            }
+
+    PaymentManagerDelegate
+        /**
+        プロダクト情報のリクエスト結果通知
+
+        @param products 情報取得に成功したプロダクト。SKProduct型
+        @param invalidProducts 情報取得に失敗したプロダクト一覧。NSString型
+        */
+        - (void) responseProductInfo: (NSArray *) products InvalidProducts: (NSArray *) invalidProducts;
+
+8. 製品情報の取得を実装した後は、購入処理を実装します。購入処理の要求にはPaymentManagerのbuyProductを呼び出します。引数にApp内課金製品情報を渡すのですが、この時、手順7によって取得したApp内課金製品情報一覧から、引数にするApp内課金製品情報を引き抜く処理を実装させる必要があります。
+    例   サンプルアプリでは、購入する製品をテーブルビューから選択するようにしてあります。なので、テーブルビューのある行を選択した際に呼び出されるUITableViewDelegateに記述してあります。
+            // 保持していたプロダクトのリストから該当のプロダクトを取り出す
+            SKProduct *product = [_products objectAtIndex:indexPath.row];
+            // プロダクトの購入処理を開始させる
+            [_paymentManager buyProduct:product];
+
+    PaymentManager
+        /**
+        プロダクトの購入
+
+        @param product 購入するプロダクト
+        */
+        - (BOOL) buyProduct: (SKProduct *) product;
+
+9. 購入処理の完了は、PaymentManagerDelegateのcompletePaymentに通知されますので、これを実装します。ここで、購入した製品を画面に反映したり、購入状況の更新を行ったりします。
+    例   サンプルアプリではPaymentManagerDelegateを自クラスに設定しているので、MainViewController.m内に記述しています。
+            - (void) completePayment:(SKPaymentTransaction *)transaction {
+                // 購入状況の更新
+                [_productManager bought:transaction.payment.productIdentifier];
+                // 画面への反映
+                [self reflectBought];
+            }
+
+    PaymentManagerDelgate
+        /**
+        購入完了通知
+
+        @param transaction 完了した購入処理情報
+        */
+        - (void) completePayment: (SKPaymentTransaction *) transaction;
+
+10. 最後にリストアの処理を実装します。PaymentManagerのstartRestoreを呼び出します。リストアボタンを作成したり、アプリ起動時に行ったりしてください。
+    例   サンプルアプリではリストアボタンを作成し、押下処理時に呼び出すようにしています。
+            [_paymentManager startRestore];
+
+    PaymentManager
+        /**
+        リストアの開始
+        購入済みのプロダクトを再提供
+        */
+        - (BOOL) startRestore;
+
+11. それぞれ処理を行う際にアラートビューを表示させ、処理中はほかのボタンを押させないようにします。
+
+
+■ App内課金テスト用アカウントの作り方と使い方
+作り方
+1. iTunes Connectの「ユーザーと役割」から「Sandboxテスター」を選択します。
+
+2. 右上の「+」ボタンをクリックします。Sandboxテスターの追加画面が表示されます。
+
+3. テスター情報のすべての項目を適当に設定します。メールアドレスは、後からアカウント認証を行うようなメールが送られてきますが、アカウント認証をしなくても使うことができるので、捨てアドでもなんでもいいです。
+
+4. すべての項目を記入出来たら、右上の保存をクリックします。エラーがでなければ完了です。
+
+使い方
+1. アプリを実機にデバッグする前に、実機の「設定」から「iTunes & App Store」を開きます。
+
+2. 普段使っているApple IDをサインアウトします。
+
+3. サインアウトが完了したら、実機にデバッグします。
+
+4. App内課金の購入処理の際に、アカウントを要求されるので、「既存のApple IDを使用」を選択し、先ほど作成したテスト用アカウントのメールアドレスとパスワードを入力します。
+
+5. 成功すれば、購入処理が開始されます。
+
