@@ -186,6 +186,7 @@
                         <outlet property="_adBannerView" destination="YVK-D8-P4S" id="u4Q-OP-bLf"/>
                         <outlet property="_tableView" destination="xov-m8-DDo" id="VVd-3W-J9n"/>
                         <outlet property="pointLabel" destination="cuR-r2-iC5" id="jf0-w8-dDg"/>
+                        <outlet property="textLabel" destination="9RW-Bv-7HR" id="BNH-fh-54T"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="x5A-6p-PRh" sceneMemberID="firstResponder"/>

@@ -24,6 +24,9 @@
     /** ポイント表示 */
     IBOutlet UILabel *pointLabel;
     
+    /** 購読型テキスト */
+    IBOutlet UILabel *textLabel;
+    
     /** アプリ内課金マネージャー */
     PaymentManager *_paymentManager;
     

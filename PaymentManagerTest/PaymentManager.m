@@ -137,7 +137,7 @@
     [[SKPaymentQueue defaultQueue] finishTransaction:transaction];
 }
 
-- (void) checkReceipt {
+- (NSDictionary *) checkReceipt {
     
     // レシートデータ取得
     NSData *receiptData;
@@ -147,9 +147,9 @@
     
     
     // Base64エンコードしたレシートデータの有効性を確認する
-    NSDictionary *dictionary = [self verifyReceipt:[receiptData base64EncodedString]];
+    NSDictionary *dictionary = [self verifyReceipt:[receiptData base64EncodedStringWithOptions:0]];
     
-    [_delegate responseReceiptInfo:dictionary];
+    return dictionary;
 }
 
 /**

@@ -8,10 +8,14 @@
 
 #import <Foundation/Foundation.h>
 
+#import "PaymentManager.h"
+
 // プロダクトID
 #define kProductRemoveAd @"jp.cubic.PaymentManagerTest.removeAd"
 #define kProductIncreasePoints @"jp.cubic.PaymentManagerTest.addPoints"
-#define kProductShowTest7days @"jp.cubic.PaymentManagerTest.ShowText7days"
+#define kProductShowTextExpiresDate @"ShowTextExpiresDate"
+#define kProductShowText7days @"jp.cubic.PaymentManagerTest.ShowText7days"
+#define kProductShowText1Month @"jp.cubic.PaymentManagerTest.ShowText1Month"
 
 /** プロダクト管理クラス */
 @interface ProductManager : NSObject {
@@ -24,6 +28,8 @@
 @property (nonatomic) BOOL isRemoveAd;
 /** ポイント数 */
 @property (nonatomic) NSInteger points;
+/** 購読テキスト表示/非表示 */
+@property (nonatomic, getter=getIsText) BOOL isText;
 
 
 + (ProductManager *)sharedInstance;

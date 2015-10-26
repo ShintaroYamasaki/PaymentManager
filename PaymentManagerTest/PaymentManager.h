@@ -62,13 +62,6 @@ typedef enum {
 - (void) completePayment: (SKPaymentTransaction *) transaction;
 
 /**
- レシート確認通知
- 
- @param receipts レシート情報
- */
-- (void) responseReceiptInfo: (NSDictionary *) receipts;
-
-/**
  購入処理状況通知
  
  @param status 購入処理状況
@@ -128,7 +121,7 @@ typedef enum {
 /**
  レシートの確認
  */
-- (void) checkReceipt;
+- (NSDictionary *) checkReceipt;
 
 
 /** 
