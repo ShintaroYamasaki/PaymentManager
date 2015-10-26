@@ -43,28 +43,6 @@ typedef enum {
     PaymentErrorUnknown
 } PaymentError;
 
-/** レシートステータス */
-typedef enum {
-    /** 有効なレシート */
-    PaymentReceiptStatusValid,
-    /** 送信したJSONオブジェクトが不正 */
-    PaymentReceiptStatusInvalidJSON,
-    /** receipt-dataプロパティのデータが不正な形式 */
-    PaymentReceiptStatusInvalidReceiptDataProperty,
-    /** レシートを認証できない */
-    PaymentReceiptStatusFaultCertification,
-    /** 共有シークレットが一致しない */
-    PaymentReceiptStatusInvalidSharedSecret,
-    /** Appleのレシートサーバが利用できない */
-    PaymentReceiptStatusFaultReceiptServer,
-    /** レシートの期限切れ */
-    PaymentReceiptStatusExpired,
-    /** URLが違う */
-    PaymentReceiptStatusDifferentURL
-} PaymentReceiptStatus;
-
-
-
 /** アプリ内課金管理デリゲート */
 @protocol PaymentManagerDelegate <NSObject>
 
@@ -82,6 +60,13 @@ typedef enum {
  @param transaction 完了した購入処理情報
  */
 - (void) completePayment: (SKPaymentTransaction *) transaction;
+
+/**
+ レシート確認通知
+ 
+ @param receipts レシート情報
+ */
+- (void) responseReceiptInfo: (NSDictionary *) receipts;
 
 /**
  購入処理状況通知
@@ -139,6 +124,12 @@ typedef enum {
  @param quantity 購入量
  */
 - (BOOL) buyProduct: (SKProduct *) product WithQuantity: (NSInteger) quantity;
+
+/**
+ レシートの確認
+ */
+- (void) checkReceipt;
+
 
 /** 
  リストアの開始

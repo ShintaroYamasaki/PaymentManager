@@ -98,67 +98,10 @@
  */
 - (void)completedTransaction:(SKPaymentTransaction *)transaction {
     
-    // レシートデータ取得
-    NSData *receiptData;
-    
-    if ( [[UIDevice currentDevice].systemVersion floatValue] < 7.0) {
-        receiptData = transaction.transactionReceipt;
-    } else {
-        NSURL *receiptURL = [[NSBundle mainBundle] appStoreReceiptURL];
-        receiptData = [NSData dataWithContentsOfURL:receiptURL];
-    }
-    
-    // Base64エンコードしたレシートデータの有効性を確認する
-    NSDictionary *dictionary = [self verifyReceipt:[receiptData base64EncodedString]];
-    
-    // ステータスコードの確認
-    NSNumber *status = [dictionary objectForKey:@"status"];
-    // TODO: エラー吐き出し
-    switch (status.intValue) {
-        // 送信したJSONオブジェクトが不正
-        case 21000:
-            
-            break;
-        // receipt-dataプロパティのデータが不正な形式
-        case 21002:
-            
-            break;
-        // レシートを認証できない
-        case 21003:
-            
-            break;
-        // 共有シークレットが一致しない
-        case 21004:
-            
-            break;
-        // Appleのレシートサーバが利用できない
-        case 21005:
-            
-            break;
-        // レシートの期限切れ
-        case 21006:
-            
-            break;
-        // サンドボックス用レシートを本番用URLに送付した
-        case 21007:
-            
-            break;
-        // 本番用レシートをサンドボックス用URLに送付した
-        case 21008:
-            
-            break;
-        default:
-            break;
-    }
-    
     // 完了の旨を通知
-    // TODO: デリゲートの完了通知メソッドの引数にレシート情報を追加する
-    
     [_delegate completePayment:transaction];
     // トランザクションを終了する
     [[SKPaymentQueue defaultQueue] finishTransaction:transaction];
-
-    
 }
 /**
  購入処理中にエラーが発生したとき、エラーを通知する
@@ -192,6 +135,21 @@
     
     // トランザクションを終了する
     [[SKPaymentQueue defaultQueue] finishTransaction:transaction];
+}
+
+- (void) checkReceipt {
+    
+    // レシートデータ取得
+    NSData *receiptData;
+    
+    NSURL *receiptURL = [[NSBundle mainBundle] appStoreReceiptURL];
+    receiptData = [NSData dataWithContentsOfURL:receiptURL];
+    
+    
+    // Base64エンコードしたレシートデータの有効性を確認する
+    NSDictionary *dictionary = [self verifyReceipt:[receiptData base64EncodedString]];
+    
+    [_delegate responseReceiptInfo:dictionary];
 }
 
 /**
