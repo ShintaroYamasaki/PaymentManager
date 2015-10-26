@@ -43,6 +43,25 @@ typedef enum {
     PaymentErrorUnknown
 } PaymentError;
 
+/** レシートステータス */
+typedef enum {
+    /** 有効なレシート */
+    PaymentReceiptStatusValid,
+    /** 送信したJSONオブジェクトが不正 */
+    PaymentReceiptStatusInvalidJSON,
+    /** receipt-dataプロパティのデータが不正な形式 */
+    PaymentReceiptStatusInvalidReceiptDataProperty,
+    /** レシートを認証できない */
+    PaymentReceiptStatusFaultCertification,
+    /** 共有シークレットが一致しない */
+    PaymentReceiptStatusInvalidSharedSecret,
+    /** Appleのレシートサーバが利用できない */
+    PaymentReceiptStatusFaultReceiptServer,
+    /** レシートの期限切れ */
+    PaymentReceiptStatusExpired,
+    /** URLが違う */
+    PaymentReceiptStatusDifferentURL
+} PaymentReceiptStatus;
 
 
 
@@ -127,10 +146,4 @@ typedef enum {
  */
 - (BOOL) startRestore;
 
-/**
- Appleのサーバにレシートを送信して確認する
- 
- @param receipt 
- */
-- (NSDictionary *)verifyReceipt:(NSString *)receipt;
 @end

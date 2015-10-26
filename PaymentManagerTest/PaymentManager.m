@@ -99,11 +99,17 @@
 - (void)completedTransaction:(SKPaymentTransaction *)transaction {
     
     // レシートデータ取得
-    NSURL *receiptURL = [[NSBundle mainBundle] appStoreReceiptURL];
-    NSData *receiptData = [NSData dataWithContentsOfURL:receiptURL];
+    NSData *receiptData;
+    
+    if ( [[UIDevice currentDevice].systemVersion floatValue] < 7.0) {
+        receiptData = transaction.transactionReceipt;
+    } else {
+        NSURL *receiptURL = [[NSBundle mainBundle] appStoreReceiptURL];
+        receiptData = [NSData dataWithContentsOfURL:receiptURL];
+    }
     
     // Base64エンコードしたレシートデータの有効性を確認する
-    NSDictionary *dictionary = [[PaymentManager sharedInstance] verifyReceipt:[receiptData base64EncodedString]];
+    NSDictionary *dictionary = [self verifyReceipt:[receiptData base64EncodedString]];
     
     // ステータスコードの確認
     NSNumber *status = [dictionary objectForKey:@"status"];
@@ -188,6 +194,11 @@
     [[SKPaymentQueue defaultQueue] finishTransaction:transaction];
 }
 
+/**
+ Appleのサーバにレシートを送信して確認する
+ 
+ @param receipt
+*/
 - (NSDictionary *)verifyReceipt:(NSString *)receipt {
     
     //  NSURL *url = [NSURL URLWithString:@"https://buy.itunes.apple.com/verifyReceipt"];
