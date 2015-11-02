@@ -54,35 +54,38 @@
 }
 
 
-- (BOOL) getIsText {
+- (void) setIsText {
     // 今現在と有効期限を比較する
     NSNumber *current = [[NSNumber alloc] initWithDouble: [[NSDate date] timeIntervalSince1970]];
     
     NSNumber *expired = [_userDefaults objectForKey:kProductShowTextExpiresDate];
     
     if (expired && NSOrderedDescending != [current compare:expired]) {
-        return YES;
+        self.isText = YES;
     } else {
-        return NO;
+        self.isText = NO;
     }
 }
 
-- (int)saveReceipt {
-    NSDictionary *dictionary = [[PaymentManager sharedInstance] checkReceipt];
+- (int)checkReceipt {
+    NSDictionary *dictionary = [[PaymentManager sharedInstance] receiveReceipt];
     
     NSNumber *status = [dictionary objectForKey:@"status"];
+    
+    NSLog(@"すてーたす %@", status);
     
     // ステータスデータの確認
     if (![status isEqual:[NSNumber numberWithInt:0]] &&
         ![status isEqual:[NSNumber numberWithInt:21006]]) {
-        NSLog(@"不正なデータ %@", status);
         return [status intValue];
     }
     
     // 定期購読の期限の保存と最新のレシートの保存
     NSDictionary *receiptDictionary = [dictionary objectForKey:@"receipt"];
-    NSNumber *experiesDate = [receiptDictionary objectForKey:@"expires_date"];
-    NSString *productId = [receiptDictionary objectForKey:@"product_id"];
+    NSArray *appReceipts = [receiptDictionary objectForKey:@"in_app"];
+    NSDictionary *appReceipt = [appReceipts lastObject];
+    NSNumber *experiesDate = [NSNumber numberWithDouble: [[appReceipt objectForKey:@"expires_date_ms"] doubleValue]];
+    NSString *productId = [appReceipt objectForKey:@"product_id"];
     
     if (!experiesDate) {
         // リストアの時はexpires_dateキーは存在していないため
@@ -122,7 +125,9 @@
     } else if ([productIds isEqualToString:kProductShowText7days]
                || [productIds isEqualToString:kProductShowText1Month]) {
         // レシート確認
-        [self saveReceipt];
+        [self checkReceipt];
+        
+        [self setIsText];
     }
 }
 

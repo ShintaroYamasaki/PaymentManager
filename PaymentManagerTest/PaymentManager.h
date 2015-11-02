@@ -121,7 +121,7 @@ typedef enum {
 /**
  レシートの確認
  */
-- (NSDictionary *) checkReceipt;
+- (NSDictionary *) receiveReceipt;
 
 
 /** 

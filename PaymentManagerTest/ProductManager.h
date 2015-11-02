@@ -29,7 +29,7 @@
 /** ポイント数 */
 @property (nonatomic) NSInteger points;
 /** 購読テキスト表示/非表示 */
-@property (nonatomic, getter=getIsText) BOOL isText;
+@property (nonatomic) BOOL isText;
 
 
 + (ProductManager *)sharedInstance;

@@ -53,7 +53,7 @@
 - (void) reflectBought {
     [_adBannerView setHidden: _productManager.isRemoveAd];
     pointLabel.text = [[NSNumber numberWithInteger:_productManager.points] stringValue];
-    [textLabel setHidden:!_productManager.isText];
+    [textLabel setHidden:!_productManager.isText ];
 }
 
 - (void) didReceiveMemoryWarning {

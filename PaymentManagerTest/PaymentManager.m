@@ -137,13 +137,11 @@
     [[SKPaymentQueue defaultQueue] finishTransaction:transaction];
 }
 
-- (NSDictionary *) checkReceipt {
+- (NSDictionary *) receiveReceipt {
     
     // レシートデータ取得
-    NSData *receiptData;
-    
     NSURL *receiptURL = [[NSBundle mainBundle] appStoreReceiptURL];
-    receiptData = [NSData dataWithContentsOfURL:receiptURL];
+    NSData *receiptData = [NSData dataWithContentsOfURL:receiptURL];
     
     
     // Base64エンコードしたレシートデータの有効性を確認する
@@ -165,9 +163,11 @@
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
     
     // 自動更新ではない場合はpasswordは不要
-    NSString *jsonForTransmission = [NSString stringWithFormat:@"{\"receipt-data\":\"%@\", \"password\":\"%@\"}",
-                                     receipt,
-                                     kSharedSecret];
+//    NSString *jsonForTransmission = [NSString stringWithFormat:@"{\"receipt-data\":\"%@\", \"password\":\"%@\"}",
+//                                     receipt,
+//                                     kSharedSecret];
+    NSString *jsonForTransmission = [NSString stringWithFormat:@"{\"receipt-data\":\"%@\"}",
+                                     receipt];
     [request setHTTPBody:[jsonForTransmission dataUsingEncoding:NSUTF8StringEncoding]];
     [request setHTTPMethod:@"POST"];
     
@@ -184,7 +184,7 @@
                                 options:kNilOptions
                                 error:&error];
     
-    NSLog(@"%@", dictionary);
+//    NSLog(@"%@", dictionary);
     
     return dictionary;
 }
