@@ -28,12 +28,15 @@
         [_productIds addObject:kProductRemoveAd];
         [_productIds addObject:kProductIncreasePoints];
         [_productIds addObject:kProductShowText7days];
-        [_productIds addObject:kProductShowText1Month];
         
         // 購入状況をNSUserDefaultsから読み込む
         _userDefaults = [NSUserDefaults standardUserDefaults];
         _isRemoveAd = [_userDefaults boolForKey:kProductRemoveAd];
         _points = [_userDefaults integerForKey:kProductIncreasePoints];
+        _isText = [_userDefaults boolForKey:kProductShowText];
+        
+        // レシートのチェック
+        [self checkReceipt];
     }
     
     return self;
@@ -53,10 +56,19 @@
     [_userDefaults synchronize];
 }
 
+- (void) setIsText:(BOOL)isText {
+    _isText = isText;
+    // 購入状況をNSUserDefaultsに保存
+    [_userDefaults setInteger:isText forKey:kProductShowText];
+    [_userDefaults synchronize];
+}
+
 
 - (void) setIsText {
     // 今現在と有効期限を比較する
-    NSNumber *current = [[NSNumber alloc] initWithDouble: [[NSDate date] timeIntervalSince1970]];
+    NSDate *datecurrent = [NSDate date];
+    double doublecurrent = [datecurrent timeIntervalSince1970];
+    NSNumber *current = [[NSNumber alloc] initWithDouble: doublecurrent];
     
     NSNumber *expired = [_userDefaults objectForKey:kProductShowTextExpiresDate];
     
@@ -72,8 +84,6 @@
     
     NSNumber *status = [dictionary objectForKey:@"status"];
     
-    NSLog(@"すてーたす %@", status);
-    
     // ステータスデータの確認
     if (![status isEqual:[NSNumber numberWithInt:0]] &&
         ![status isEqual:[NSNumber numberWithInt:21006]]) {
@@ -84,30 +94,12 @@
     NSDictionary *receiptDictionary = [dictionary objectForKey:@"receipt"];
     NSArray *appReceipts = [receiptDictionary objectForKey:@"in_app"];
     NSDictionary *appReceipt = [appReceipts lastObject];
-    NSNumber *experiesDate = [NSNumber numberWithDouble: [[appReceipt objectForKey:@"expires_date_ms"] doubleValue]];
+    // 有効期限
+    NSString *strExperies = [appReceipt objectForKey:@"expires_date_ms"];
+    NSNumber *experiesDate = [NSNumber numberWithLong: [strExperies longLongValue] / 1000];
     NSString *productId = [appReceipt objectForKey:@"product_id"];
     
-    if (!experiesDate) {
-        // リストアの時はexpires_dateキーは存在していないため
-        // 期限を設定する必要がある
-        NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
-        NSLocale *POSIXLocale = [[NSLocale alloc] initWithLocaleIdentifier:@"en_US_POSIX"];
-        [formatter setLocale:POSIXLocale];
-        [formatter setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
-        [formatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
-        NSDate *purchaseDate = [formatter dateFromString:[[receiptDictionary objectForKey:@"purchase_date"]
-                                                          stringByReplacingOccurrencesOfString:@" Etc/GMT"
-                                                          withString:@""]];
-        if ([productId isEqualToString:kProductShowText7days]) {
-            purchaseDate = [purchaseDate initWithTimeInterval:3600 * 24 * 7 sinceDate:purchaseDate];
-        } else if ([productId isEqualToString:kProductShowText1Month]) {
-            purchaseDate = [purchaseDate initWithTimeInterval:3600 * 24 * 31 sinceDate:purchaseDate];
-        }
-        experiesDate = [[NSNumber alloc] initWithDouble:[purchaseDate timeIntervalSince1970]];
-    }
-    
-    if (([productId isEqualToString:kProductShowText7days]) ||
-        ([productId isEqualToString:kProductShowText1Month])) {
+    if (([productId isEqualToString:kProductShowText7days])) {
         [_userDefaults setObject:experiesDate
                           forKey:kProductShowTextExpiresDate];
     }
@@ -122,8 +114,7 @@
         [self setIsRemoveiAd:YES];
     } else if ([productIds isEqualToString:kProductIncreasePoints]) {
         [self setPoints:_points + 1];
-    } else if ([productIds isEqualToString:kProductShowText7days]
-               || [productIds isEqualToString:kProductShowText1Month]) {
+    } else if ([productIds isEqualToString:kProductShowText7days]) {
         // レシート確認
         [self checkReceipt];
         

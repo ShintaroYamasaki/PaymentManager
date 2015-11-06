@@ -14,8 +14,8 @@
 #define kProductRemoveAd @"jp.cubic.PaymentManagerTest.removeAd"
 #define kProductIncreasePoints @"jp.cubic.PaymentManagerTest.addPoints"
 #define kProductShowTextExpiresDate @"ShowTextExpiresDate"
-#define kProductShowText7days @"jp.cubic.PaymentManagerTest.ShowText7days"
-#define kProductShowText1Month @"jp.cubic.PaymentManagerTest.ShowText1Month"
+#define kProductShowText @"jp.cubic.PaymentManagerTest.ShowText"
+#define kProductShowText7days @"jp.cubic.PaymentManagerTest.ShowText.7days"
 
 /** プロダクト管理クラス */
 @interface ProductManager : NSObject {

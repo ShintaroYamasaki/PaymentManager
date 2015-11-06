@@ -87,6 +87,8 @@
             break;
         case PaymentStatusPurchased:
             statusText = @"PaymentStatusPurchased";
+//            [self setAlertViewWithTitle:nil Message:@"購入しました" CancelButtonTitle:@"OK"];
+//            [_alertView show];
             break;
         case PaymentStatusRestored:
             statusText = @"PaymentStatusRestored";

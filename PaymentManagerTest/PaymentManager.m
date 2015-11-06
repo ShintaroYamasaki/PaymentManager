@@ -163,11 +163,9 @@
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
     
     // 自動更新ではない場合はpasswordは不要
-//    NSString *jsonForTransmission = [NSString stringWithFormat:@"{\"receipt-data\":\"%@\", \"password\":\"%@\"}",
-//                                     receipt,
-//                                     kSharedSecret];
-    NSString *jsonForTransmission = [NSString stringWithFormat:@"{\"receipt-data\":\"%@\"}",
-                                     receipt];
+    NSString *jsonForTransmission = [NSString stringWithFormat:@"{\"receipt-data\":\"%@\", \"password\":\"%@\"}",
+                                     receipt,
+                                     kSharedSecret];
     [request setHTTPBody:[jsonForTransmission dataUsingEncoding:NSUTF8StringEncoding]];
     [request setHTTPMethod:@"POST"];
     
