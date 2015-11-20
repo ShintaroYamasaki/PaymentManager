@@ -21,7 +21,7 @@
     
     // アプリ内課金マネージャーの設定
     _paymentManager = [PaymentManager sharedInstance];  // 複数のクラスで単一のインスタンスを扱うことをできるようにsharedInstanceで初期化
-    _paymentManager.delegate = self;                    // PaymentManagerDelegateを設定
+    _paymentManager.delegate = self;  // PaymentManagerDelegateを設定
 
     // プロダクト情報の取得
     [_paymentManager requestProductInfo:_productManager.productIds];
@@ -43,23 +43,50 @@
         [_alertView show];
     };
 }
+/** 再表示ボタン押下処理 */
+- (IBAction)onReload:(id)sender {
+    [self reflectBought];
+}
 
 /** アラートのパラメータ設定 */
 - (void) setAlertViewWithTitle: (NSString *) title Message: (NSString *) message CancelButtonTitle: (NSString *) cancel {
     _alertView = [[UIAlertView alloc] initWithTitle:title message:message delegate:nil cancelButtonTitle:cancel otherButtonTitles:nil];
 }
 
+/** 
+ プロダクト名の取得 
+ 自動更新購読型の場合、ひとつの製品に複数の期間を設定できるため、
+ IDごとに期間を明示する必要がある
+ */
+- (NSString *) productName: (SKProduct *) product {
+    if ([product.productIdentifier isEqual:kProductShowText7days]) {
+        return [product.localizedTitle stringByAppendingString:@" (7日間)"];
+    } else if ([product.productIdentifier isEqual:kProductShowText1month]) {
+        return [product.localizedTitle stringByAppendingString:@" (1ヶ月)"];
+    } else {
+        return product.localizedTitle;
+    }
+}
+
 /** 購入したプロダクトを画面に反映させる */
-- (void) reflectBought {
+- (void) reflectBought{
     [_adBannerView setHidden: _productManager.isRemoveAd];
     pointLabel.text = [[NSNumber numberWithInteger:_productManager.points] stringValue];
-    [textLabel setHidden:!_productManager.isText ];
+    if ([_productManager getIsText]) {
+        [textLabel setHidden:NO];
+    } else {
+        // 期限切れならレシートの更新
+        // 自動更新された場合、Appleサーバー側のレシートは更新されるが、
+        // ローカル側のレシートは古いままなので、ローカル側のレシートを更新する
+        [_paymentManager refreshReceipt];
+    }
 }
 
 - (void) didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
 }
 
+// App内課金のデリゲート -----------------------------------------------------------------------
 #pragma mark - PaymentManagerDelegate
 - (void) completePayment:(SKPaymentTransaction *)transaction {
     // 購入状況の更新
@@ -87,22 +114,26 @@
             break;
         case PaymentStatusPurchased:
             statusText = @"PaymentStatusPurchased";
-//            [self setAlertViewWithTitle:nil Message:@"購入しました" CancelButtonTitle:@"OK"];
-//            [_alertView show];
             break;
         case PaymentStatusRestored:
             statusText = @"PaymentStatusRestored";
             break;
-        case PaymentStatusResponsedProductInfo:
-            statusText = @"PaymentStatusResponsedProductInfo";
-            break;
         case PaymentStatusFailed:
             statusText = @"PaymentStatusFailed";
+            break;
+        case PaymentStatusReceiptRefleshing:
+            statusText = @"PaymentStatusReceiptRefleshing";
+            break;
+        case PaymentStatusReceiptRefleshed:
+            statusText = @"PaymentStatusReceiptRefleshed";
+            // 購読型コンテンツ表示更新
+            [textLabel setHidden:![_productManager getIsText]];
             break;
         default:
             break;
     }
     
+    // ステータス表示
     NSLog(@"%@", statusText);
     
 }
@@ -135,13 +166,15 @@
         default:
             break;
     }
-    
+    // エラー表示
     NSLog(@"%@", errorText);
     
     [self setAlertViewWithTitle:nil Message:errorText CancelButtonTitle:@"OK"];
     [_alertView show];
 }
 
+
+// 広告表示 ------------------------------------------------------
 #pragma mark - ADBannerViewDelegate
 - (void)bannerViewDidLoadAd:(ADBannerView *)banner {
     if (!_bannerVisible) {
@@ -161,6 +194,8 @@
     }
 }
 
+
+// テーブル関連 ----------------------------------------------------------
 #pragma mark - UITableViewDataSource
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     return 1;
@@ -179,14 +214,17 @@
                                       reuseIdentifier:identifier];
     }
     
+    // 製品名表示 -------------------------------------------------------------------
     SKProduct *product = [_products objectAtIndex:indexPath.row];
-    cell.textLabel.text = product.localizedTitle;
+    cell.textLabel.text = [self productName:product];
     cell.detailTextLabel.text = [NSString stringWithFormat:@"%@", product.price];
+    // ----------------------------------------------------------------------------
     
     return cell;
 }
 
 #pragma mark - UITableViewDelegate
+// テーブルのセルをタップした時
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     

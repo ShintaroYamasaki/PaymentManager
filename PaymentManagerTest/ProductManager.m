@@ -28,15 +28,14 @@
         [_productIds addObject:kProductRemoveAd];
         [_productIds addObject:kProductIncreasePoints];
         [_productIds addObject:kProductShowText7days];
+        [_productIds addObject:kProductShowText1month];
         
         // 購入状況をNSUserDefaultsから読み込む
         _userDefaults = [NSUserDefaults standardUserDefaults];
         _isRemoveAd = [_userDefaults boolForKey:kProductRemoveAd];
         _points = [_userDefaults integerForKey:kProductIncreasePoints];
-        _isText = [_userDefaults boolForKey:kProductShowText];
+        _expiresText = [_userDefaults doubleForKey:kProductShowText];
         
-        // レシートのチェック
-        [self checkReceipt];
     }
     
     return self;
@@ -56,56 +55,42 @@
     [_userDefaults synchronize];
 }
 
-- (void) setIsText:(BOOL)isText {
-    _isText = isText;
+- (void) setExpiresText:(double)expiresText {
+    _expiresText = expiresText;
     // 購入状況をNSUserDefaultsに保存
-    [_userDefaults setInteger:isText forKey:kProductShowText];
+    [_userDefaults setDouble:expiresText forKey:kProductShowText];
     [_userDefaults synchronize];
 }
 
+- (BOOL) getIsText {
+    // レシート確認
+    NSTimeInterval expires = [[PaymentManager sharedInstance] checkReceipt:kProductShowText];
+    
+    [self setExpiresText:expires];
 
-- (void) setIsText {
-    // 今現在と有効期限を比較する
-    NSDate *datecurrent = [NSDate date];
-    double doublecurrent = [datecurrent timeIntervalSince1970];
-    NSNumber *current = [[NSNumber alloc] initWithDouble: doublecurrent];
     
-    NSNumber *expired = [_userDefaults objectForKey:kProductShowTextExpiresDate];
+    // 有効期限ログ出し -----------------------------------------------------------------------------------
+    // NSTimeIntervalからNSStringへ変換
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    [dateFormatter setTimeStyle:NSDateFormatterMediumStyle];
+    [dateFormatter setDateStyle:NSDateFormatterMediumStyle];
+    [dateFormatter setTimeZone:[NSTimeZone systemTimeZone]];
+    [dateFormatter setLocale:[NSLocale currentLocale]];
+    NSString *expiresStr = [dateFormatter stringFromDate:[NSDate dateWithTimeIntervalSince1970:expires]];
     
-    if (expired && NSOrderedDescending != [current compare:expired]) {
-        self.isText = YES;
+    NSLog(@"有効期限 : %@", expiresStr);
+    // --------------------------------------------------------------------------------------------------
+    
+    BOOL status;
+    // 現在時刻と比較
+    if (_expiresText < [[NSDate date] timeIntervalSince1970]) {
+        status = NO;
     } else {
-        self.isText = NO;
+        status = YES;
     }
+    
+    return status;
 }
-
-- (int)checkReceipt {
-    NSDictionary *dictionary = [[PaymentManager sharedInstance] receiveReceipt];
-    
-    NSNumber *status = [dictionary objectForKey:@"status"];
-    
-    // ステータスデータの確認
-    if (![status isEqual:[NSNumber numberWithInt:0]] &&
-        ![status isEqual:[NSNumber numberWithInt:21006]]) {
-        return [status intValue];
-    }
-    
-    // 定期購読の期限の保存と最新のレシートの保存
-    NSDictionary *receiptDictionary = [dictionary objectForKey:@"receipt"];
-    NSArray *appReceipts = [receiptDictionary objectForKey:@"in_app"];
-    NSDictionary *appReceipt = [appReceipts lastObject];
-    // 有効期限
-    NSString *strExperies = [appReceipt objectForKey:@"expires_date_ms"];
-    NSNumber *experiesDate = [NSNumber numberWithLong: [strExperies longLongValue] / 1000];
-    NSString *productId = [appReceipt objectForKey:@"product_id"];
-    
-    if (([productId isEqualToString:kProductShowText7days])) {
-        [_userDefaults setObject:experiesDate
-                          forKey:kProductShowTextExpiresDate];
-    }
-    return 0;
-}
-
 
 - (void)bought:(NSString *)productIds {
     // 購入されたものをNSUserDefaultsで管理する
@@ -114,11 +99,12 @@
         [self setIsRemoveiAd:YES];
     } else if ([productIds isEqualToString:kProductIncreasePoints]) {
         [self setPoints:_points + 1];
-    } else if ([productIds isEqualToString:kProductShowText7days]) {
+    } else if ([productIds hasPrefix:kProductShowText]) {
         // レシート確認
-        [self checkReceipt];
+        NSTimeInterval expires = [[PaymentManager sharedInstance] checkReceipt:kProductShowText];
         
-        [self setIsText];
+        [self setExpiresText:expires];
+        
     }
 }
 
