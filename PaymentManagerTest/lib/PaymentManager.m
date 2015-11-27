@@ -10,10 +10,6 @@
 
 #define kIsRemainTransaction  @"IsRemainTransaction"
 
-// 自動更新（Auto-Renewable）プロダクト用の共有シークレット
-// 本来はこのようにソースコードに直接、値を書くべきではない
-#define kSharedSecret @"2444cdeeb8f641b6a14b262f83384513"
-
 @implementation PaymentManager
 
 + (PaymentManager *)sharedInstance {

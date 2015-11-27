@@ -96,6 +96,10 @@
 }
 
 - (void) responseProductInfo:(NSArray *)products InvalidProducts:(NSArray *)invalidProducts {
+    [_alertView dismissWithClickedButtonIndex:0 animated:YES];
+    _alertView = nil;
+
+    
     _products = products;
     // テーブルビューに表示
     [_tableView reloadData];

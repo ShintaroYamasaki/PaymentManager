@@ -120,7 +120,7 @@
 		CE13F3721BF0782F0074E077 /* libssl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libssl.a; sourceTree = "<group>"; };
 		CE3881AC1BF06F0F00B3BBAF /* PaymentManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaymentManager.h; sourceTree = "<group>"; };
 		CE3881AD1BF06F0F00B3BBAF /* PaymentManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PaymentManager.m; sourceTree = "<group>"; };
-		CE60F4DA1A0212B60054EABD /* ProductManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ProductManager.h; path = /Users/user/Desktop/project/PaymentManagerTest/PaymentManagerTest/ProductManager.h; sourceTree = "<absolute>"; };
+		CE60F4DA1A0212B60054EABD /* ProductManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ProductManager.h; path = /Users/yamasakishintaro/Documents/Xcode_Project/iOS/paymentmanager/PaymentManagerTest/ProductManager.h; sourceTree = "<absolute>"; };
 		CE60F4DB1A0212B60054EABD /* ProductManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ProductManager.m; sourceTree = "<group>"; };
 		CE86933C1A00D45C00338E33 /* PaymentManagerTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PaymentManagerTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CE8693401A00D45C00338E33 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
